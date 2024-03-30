@@ -2,6 +2,7 @@ import math
 import typing
 import csv
 import numpy as np
+import numpy.typing as nptyping
 
 from utils import DoubleToString
 
@@ -27,13 +28,13 @@ class CECCalculator:
                 * np.exp(-gamma * np.exp(nu * np.log(abs(x))))
                 )
 
-    def Integrate(self, x: np.typing.ndarray, y: np.typing.ndarray, ind: int) -> float:
+    def Integrate(self, x: nptyping.ArrayLike, y: nptyping.ArrayLike, ind: int) -> float:
         summ = 0.0
         for i in range(ind - 1):
             summ += (x[i + 1] - x[i]) * (y[i + 1] + y[i]) * 0.5
         return summ
 
-    def calcY(self) -> np.typing.ndarray | None:  # будем возвращать новый y, а не менять старый
+    def calcY(self) -> nptyping.ArrayLike | None:  # будем возвращать новый y, а не менять старый
         if self.m_size == 0:
             return
         y = np.empty(self.m_size)
@@ -41,7 +42,7 @@ class CECCalculator:
             y[i] = self.m_x[i] * self.m_y[i] - self.m_x[0] * self.m_y[0]
         return y
 
-    def calcX1(self) -> np.typing.ndarray | None:  # будем возвращать новый, а не менять старый
+    def calcX1(self) -> nptyping.ArrayLike | None:  # будем возвращать новый, а не менять старый
         if self.m_size == 0:
             return
         x1 = np.empty(self.m_size)
@@ -49,7 +50,7 @@ class CECCalculator:
             x1[i] = self.Integrate(self.m_x, self.m_y, i)
         return x1
 
-    def calcX2(self) -> np.typing.ndarray | None:  # будем возвращать новый, а не менять старый
+    def calcX2(self) -> nptyping.ArrayLike | None:  # будем возвращать новый, а не менять старый
         if self.m_size == 0:
             return
         tmp = np.empty(self.m_size)
@@ -60,7 +61,7 @@ class CECCalculator:
             x2[i] = self.Integrate(self.m_x, tmp, i)
         return x2
 
-    def calcX3(self) -> np.typing.ndarray | None:  # будем возвращать новый, а не менять старый
+    def calcX3(self) -> nptyping.ArrayLike | None:  # будем возвращать новый, а не менять старый
         if self.m_size == 0:
             return
         tmp = np.empty(self.m_size)
@@ -134,8 +135,8 @@ class CECCalculator:
     def SaveData(self, filename: str) -> bool:
         if self.m_size == 0 or self.m_size != len(self.m_x):
             return False
-        with open('filename', 'w') as csvfile:
-            writer = csv.writer(csvfile, delimiter='; ')
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
             for i in range(self.m_size):
                 writer.writerow([self.m_x[i], self.m_y[i]])
         return True
