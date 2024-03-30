@@ -1,6 +1,9 @@
+import math
 import typing
 import csv
 import numpy as np
+
+from utils import DoubleToString
 
 
 class CECCalculator:
@@ -139,7 +142,24 @@ class CECCalculator:
 
 
     def SaveResults(self, filename: str) -> None:
-        pass
+        if self.m_size == 0:
+            print('zero')
+            return
+        f = open(filename, 'w')
+        lines = []
+        for i in range(self.m_size):
+            s = DoubleToString(self.m_x[i], 8) + ";"
+            s += DoubleToString(self.m_y[i], 8) + ";"
+            s += DoubleToString(self.m_ec_y[i], 8) + ";"
+            s += DoubleToString(self.m_ec_x1[i], 8) + ";"
+            s += DoubleToString(self.m_f1[i], 8) + ";"
+            s += DoubleToString(self.m_ec_x2[i], 8) + ";"
+            s += DoubleToString(self.m_f2[i], 8) + ";"
+            s += DoubleToString(self.m_ec_x3[i], 8) + ";"
+            s += DoubleToString(self.m_f3[i], 8) + ";"
+            lines.append(s)
+        f.writelines(lines)
+        f.close()
 
     def CalcEigenCoordinates(self):
         self.m_ec_y = self.calcY()
@@ -158,9 +178,64 @@ class CECCalculator:
             print(i, s)
         raise NotImplementedError("Не доделал")
 
-    def CalculateParameters(self):
-        pass
+    def CalculateParameters(self) -> None:
+        """
+        Метод расчета параметров функции a,mu,nu,gamma
+        """
+        if not len(self.m_ec_coefs):
+            print('Coefficients are not calculated!')
+            return
+        a = math.exp(
+            (1 - self.m_ec_coefs[0]) / self.m_ec_coefs[1]
+            - self.m_ec_coefs[2] / (self.m_ec_coefs[1] * self.m_ec_coefs[1])
+        )
+        mu = -self.m_ec_coefs[2] / self.m_ec_coefs[1]
+        nu = self.m_ec_coefs[1]
+        arr1 = np.empty(self.m_size)
+        arr2 = np.empty(self.m_size)
+        corr1 = 0
+        corr2 = 0
+        for i in range(self.m_size):
+            arr1[i] = math.pow(self.m_x[i], nu)
+            arr2[i] = math.log(abs(self.m_y[i])) - math.log(a) - mu * math.log(self.m_x[i])
+            corr1 += arr1[i] * arr2[i]
+            corr2 += arr1[i] * arr1[i]
+
+        gamma = -corr1 / corr2
+        print(f'a={a}')
+        print(f'mu={mu}')
+        print(f'nu={nu}')
+        print(f'gamma={gamma}')
 
     def CalculatePlotFunctions(self):
-        pass
+        """
+        Метод расчета функций
+        f1=Y-C2*X2-C3*X3
+        f2=Y-C1*X1-C3*X3
+        f3=Y-C1*X1-C2*X2
+        :return:
+        """
+        if not len(self.m_ec_coefs):
+            print('Coefficients are not calculated!')
+            return
+        self.m_f1 = np.empty(self.m_size)
+        self.m_f2 = np.empty(self.m_size)
+        self.m_f3 = np.empty(self.m_size)
+        for i in range(self.m_size):
+            # f1 = Y - C2 * X2 - C3 * X3
+            self.m_f1[i] = self.m_ec_y[i] - self.m_ec_coefs[1] * self.m_ec_x2[i] - self.m_ec_coefs[2] * self.m_ec_x3[i]
+            # f2 = Y - C1 * X1 - C3 * X3
+            self.m_f2[i] = self.m_ec_y[i] - self.m_ec_coefs[0] * self.m_ec_x1[i] - self.m_ec_coefs[2] * self.m_ec_x3[i]
+            # f3 = Y - C1 * X1 - C2 * X2
+            self.m_f3[i] = self.m_ec_y[i] - self.m_ec_coefs[0] * self.m_ec_x1[i] - self.m_ec_coefs[1] * self.m_ec_x2[i]
 
+
+if __name__ == '__main__':
+    ec = CECCalculator()
+    ec.GenerateData(100, 0.25, 15.25, 1.55, 1.05, 0.15, 1.3)
+    ec.SaveData('ex1.csv')
+    ec.CalcEigenCoordinates()
+    ec.CalcEigenCoefficients()
+    ec.CalculateParameters()
+    ec.CalculatePlotFunctions()
+    ec.SaveResults('ex1-results.csv')
