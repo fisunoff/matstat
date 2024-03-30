@@ -75,9 +75,9 @@ class CECCalculator:
     def Correlator(self, ind1: int, ind2: int) -> float:
         if self.m_size == 0:
             return 0.0
-        if ind1 <= 0 or ind1 >= 4:
+        if ind1 <= 0 or ind1 > 4:
             return 0.0
-        if ind2 <= 0 or ind2 >= 4:
+        if ind2 <= 0 or ind2 > 4:
             return 0.0
         arr1 = np.empty(self.m_size)
         arr2 = np.empty(self.m_size)
@@ -158,6 +158,7 @@ class CECCalculator:
             s += DoubleToString(self.m_f2[i], 8) + ";"
             s += DoubleToString(self.m_ec_x3[i], 8) + ";"
             s += DoubleToString(self.m_f3[i], 8) + ";"
+            s += '\n'
             lines.append(s)
         f.writelines(lines)
         f.close()
@@ -234,7 +235,7 @@ class CECCalculator:
 
 if __name__ == '__main__':
     ec = CECCalculator()
-    ec.GenerateData(100, 0.25, 15.25, 1.55, 1.05, 0.15, 1.3)
+    ec.GenerateData(1000, 0.25, 15.25, a=1.55, mu=1.05, gamma=0.15, nu=1.3)
     ec.SaveData('ex1.csv')
     ec.CalcEigenCoordinates()
     ec.CalcEigenCoefficients()
