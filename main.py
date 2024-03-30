@@ -175,9 +175,10 @@ class CECCalculator:
             for j in range(1, 5):  # 1 ... 4
                 corr = self.Correlator(i, j)
                 self.m_matrix[i - 1][j - 1] = corr  # TODO: спорный момент, так ли нужно
-                s = s + " " + str(corr)
+                s += ' ' + DoubleToString(corr)
             print(i, s)
-        raise NotImplementedError("Не доделал")
+        self.m_ec_coefs = np.linalg.solve(self.m_matrix[:, :3], self.m_matrix[:, 3])
+        print(self.m_ec_coefs)
 
     def CalculateParameters(self) -> None:
         """
