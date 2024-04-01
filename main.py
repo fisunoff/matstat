@@ -1,4 +1,5 @@
 import math
+import random
 import typing
 import csv
 import numpy as np
@@ -106,7 +107,7 @@ class CECCalculator:
             summ += arr1[i] * arr2[i]
         return summ / self.m_size
 
-    def GenerateData(self, size: int, x1: float, x2: float, a: float, mu: float, gamma: float, nu: float) -> None:
+    def GenerateData(self, size: int, x1: float, x2: float, a: float, mu: float, gamma: float, nu: float, rand=0) -> None:
         if size <= 0:
             return
         if x1 > x2:
@@ -117,7 +118,7 @@ class CECCalculator:
         delta = (x2 - x1) / (self.m_size - 1.0)
         for i in range(self.m_size):
             self.m_x[i] = x1 + i * delta
-            self.m_y[i] = self.R(self.m_x[i], a, mu, gamma, nu)
+            self.m_y[i] = self.R(self.m_x[i], a, mu, gamma, nu) * (1 + (random.random() * 2 - 1) * rand)
 
     def LoadData(self, filename: str) -> bool:
         f = open(filename)
