@@ -182,7 +182,7 @@ class CECCalculator:
         self.m_ec_coefs = np.linalg.solve(self.m_matrix[:, :3], self.m_matrix[:, 3])
         print(self.m_ec_coefs)
 
-    def CalculateParameters(self) -> None:
+    def CalculateParameters(self) -> tuple | None:
         """
         Метод расчета параметров функции a,mu,nu,gamma
         """
@@ -210,6 +210,7 @@ class CECCalculator:
         print(f'mu={mu}')
         print(f'nu={nu}')
         print(f'gamma={gamma}')
+        return a, mu, nu, gamma
 
     def CalculatePlotFunctions(self):
         """
