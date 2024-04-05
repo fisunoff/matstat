@@ -4,6 +4,7 @@ import typing
 import csv
 import numpy as np
 import numpy.typing as nptyping
+from matplotlib import pyplot as plt
 
 from utils import DoubleToString
 
@@ -237,10 +238,12 @@ class CECCalculator:
 
 if __name__ == '__main__':
     ec = CECCalculator()
-    ec.GenerateData(1000, 0.25, 15.25, a=1.55, mu=1.05, gamma=0.15, nu=1.3)
+    ec.GenerateData(1000, 1, 252, a=4096.560526344275, mu=0.010181032502358654, gamma=-1.8318079698320882e-08, nu=2.9345178170159376)
     ec.SaveData('ex1.csv')
     ec.CalcEigenCoordinates()
     ec.CalcEigenCoefficients()
     ec.CalculateParameters()
     ec.CalculatePlotFunctions()
     ec.SaveResults('ex1-results.csv')
+    plt.plot(ec.m_x, ec.m_y, color='blue')
+    plt.show()
